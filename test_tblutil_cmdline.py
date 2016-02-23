@@ -18,22 +18,36 @@ class CommandLineTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.parser.parse_args(['tocsv'])
 
-    def test_two_valid_parameters_tocsv(self):
-        # Use the name of the script to guarentee file is present
-        # calling parse_args will return multiple args without an exception if "happy"
-        self.assertTrue(self.parser.parse_args(['tocsv', 'tblutil.py']))
-
-    def test_two_valid_parameters_extract(self):
-        # Use the name of the script to guarentee file is present
-        # calling parse_args will return multiple args without an exception if "happy"
-        self.assertTrue(self.parser.parse_args(['extract', 'tblutil.py']))
-
     def test_one_valid_parameter_but_action_is_invalid(self):
         with self.assertRaises(SystemExit):
             self.parser.parse_args(['jhkjl', 'tblutil.py'])
-    
+
+    def test_two_valid_parameters_tocsv(self):
+        # Use the name of the script to guarentee file is present
+        args=self.parser.parse_args(['tocsv', 'tblutil.py'])
+        self.assertTrue(args.action=='tocsv')
+        self.assertTrue(args.file=='tblutil.py')
+        self.assertTrue(args.sheet==None)
+        self.assertTrue(args.cols==None)
+
+    def test_valid_tocsv_w_optional_sheet(self):
+        # Use the name of the script to guarentee file is present
+        args=self.parser.parse_args(['tocsv', 'tblutil.py', '-sheet=1'])
+        self.assertTrue(args.action=='tocsv')
+        self.assertTrue(args.file=='tblutil.py')
+        self.assertTrue(args.sheet==1)
+        self.assertTrue(args.cols==None)
+
     def test_optional_columns_specified_num(self):
-        self.assertTrue(self.parser.parse_args(['tocsv', 'tblitil.py', '--cols=1,2']))
+        args=self.parser.parse_args(['tocsv', 'tblutil.py', '-cols=1,2'])
+        self.assertTrue(args.action=='tocsv')
+        self.assertTrue(args.file=='tblutil.py')
+        self.assertTrue(args.sheet==None)
+        self.assertTrue(args.cols=='1,2')
 
     def test_optional_columns_specified_alpha(self):
-        self.assertTrue(self.parser.parse_args(['tocsv', 'tblitil.py', '--cols=A,B']))
+        args=self.parser.parse_args(['tocsv', 'tblutil.py', '-cols=A,B'])
+        self.assertTrue(args.action=='tocsv')
+        self.assertTrue(args.file=='tblutil.py')
+        self.assertTrue(args.sheet==None)
+        self.assertTrue(args.cols=='A,B')

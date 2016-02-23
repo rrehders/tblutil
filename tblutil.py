@@ -11,8 +11,20 @@ import re
 __author__ = 'rrehders'
 
 
-# Validate the input file
-def valid_file(fname):
+class InvalidFileType(Exception):
+    pass
+
+
+class InvalidExcelColumn(Exception):
+    pass
+
+
+def isValidFile(fname):
+    """
+    Verifies fname is valid for the current file system
+    :param fname: String containing the path and filename
+    :return:
+    """
     if not os.path.isfile(fname):
         print('ERR: '+fname+' is not a file')
         return False
@@ -20,51 +32,51 @@ def valid_file(fname):
         return True
 
 
-def whatfiletype(fname):
-    # File extension determines the type of file to process
-    if re.match('\.XLS$', sys.argv[1], re.IGNORECASE):
+def getFileType(fname):
+    """
+    Returns a standardized file type based on the extension of the filename provided
+    :param fname: Sting containing the path and file
+    :return: String of standardized file types {'excel', 'csv'} or False if an invalid file type
+    """
+    if re.search('\.XLS$', fname, re.IGNORECASE):
         return 'excel'
-    elif re.match('\.XLSX$', sys.argv[1], re.IGNORECASE):
+    elif re.search('\.XLSX$', fname, re.IGNORECASE):
         return 'excel'
-    elif re.match('\.CSV$', sys.argv[1], re.IGNORECASE):
+    elif re.search('\.CSV$', fname, re.IGNORECASE):
         return 'csv'
     else:
-        print('ERR: '+fname+' is not a valid file type')
-        return False
+        raise InvalidFileType(fname)
+
+def cvtColsStrToSet(strCols):
+    """
+    Convert a string of numeric or letter columns to a set of numeric columns
+    :param strCols: Original String to convert
+    :return: set of integers corresponding to spreadsheet columns
+    """
+    cols=set()
+    params = strCols.split(',')
+    for param in params:
+        if param.isdecimal():
+            cols.add(int(param))
+        elif param.isalpha():
+            cols.add(openpyxl.utils.column_index_from_string(param))
+        else:
+            raise InvalidExcelColumn(param)
+    return cols
 
 
 def tocsv(fname, cols=set(), sheetnum=-1):
     # validate file type
-    if whatfiletype(fname) != 'excel':
+    try:
+        if getFileType(fname) != 'excel':
+            raise InvalidFileType(fname)
+    except InvalidFileType as err:
         print('ERR: '+fname+' is not a valid filetype to convert to csv')
         print('Valid filetypes are: .xls, .xlsx')
         sys.exit()
 
-    # Check for multiple columns to extract
-    if len(cols) > 2:
-        # Loop through the parameters skipping the first
-        for idx in range(2, len(cols)):
-            argument = sys.argv[idx].strip().upper()
-            if argument.startswith('COL='):
-                # Seperate columns by the ','
-                val = argument[4:]
-                params = val.split(',')
-                for param in params:
-                    if param.isdecimal():
-                        cols.add(int(param))
-                    elif param.isalpha():
-                        cols.add(openpyxl.utils.column_index_from_string(param))
-                    else:
-                        print('ERR: '+argument+' is an invalid argument')
-                        sys.exit()
-            elif argument.startswith('SHEET='):
-                val = argument[6:]
-                if val.isdecimal():
-                    sheetnum = int(val)
-
     # load the target workbook
     print('XLS2CSV: Convert an Excel worksheet to CSV')
-    wb = None
     try:
         wb = openpyxl.load_workbook(fname, data_only=True)
     except Exception as err:
@@ -72,7 +84,7 @@ def tocsv(fname, cols=set(), sheetnum=-1):
     # Get the sheetnames
     sheetnms = wb.get_sheet_names()
 
-    # Validate the sheetnum from the commandline (if provided)
+    # Validate the sheetnum (if provided)
     # and seek user input if command line is invalid or missing
     if sheetnum not in range(len(sheetnms)):
         sheetnum = -1
@@ -104,6 +116,7 @@ def tocsv(fname, cols=set(), sheetnum=-1):
             table += [row]
             print('')
     else:
+        cols.split(',')
         # Repair loop indexes and investigate openpyxl function for converting strings to indexes
         # Build lists of values for each row for the specified columns
         # Discard columns which are invalid
@@ -142,12 +155,19 @@ def tocsv(fname, cols=set(), sheetnum=-1):
 
 
 # TODO Implement additional actions the utility is to perform
-def extractcols(fname):
-    # validate file type
-    if not whatfiletype(fname):
+def extractcols(fname, strcols):
+    """
+    Create a new file of the same type as the input file but containing only the columns identified
+    :param fname: String containing the input file path, name and extension
+    :param strcols: String containg the columns requested for extraction
+    :return: Nothing
+    """
+    if not getFileType(fname):
         print('ERR: '+fname+' is not a valid filetype to extract columns')
         print('Valid filetypes are: .xls, .xlsx, .csv')
         sys.exit()
+
+    return
 
 
 def create_parser():
@@ -156,22 +176,30 @@ def create_parser():
     )
 
     parser.add_argument(
+        '-cols',
+        type=str,
+        help='Optional value to specify which columns to use'
+    )
+
+    parser.add_argument(
+        '-sheet',
+        type=int,
+        help='Optional value to specify which columns to use'
+    )
+
+    parser.add_argument(
         'action',
+        type=str,
         choices=['tocsv', 'extract'],
         help='Action to perform on the table'
     )
 
     parser.add_argument(
         'file',
+        type=str,
         help='File containing the table'
     )
 
-    parser.add_argument(
-        '--cols',
-        nargs='?',
-        action='append',
-        help='Optional value to specify which columns to use'
-    )
     return parser
 
 
@@ -181,7 +209,7 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     if args.action is 'tocsv':
-        tocsv(args.file)
+        tocsv(args.file, args.sheet)
     elif args.action is 'extract':
         extractcols(args.file)
 

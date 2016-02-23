@@ -1,30 +1,36 @@
-from tblutil import valid_file, whatfiletype, tocsv, extractcols
+from tblutil import InvalidFileType, InvalidExcelColumn
+from tblutil import isValidFile, getFileType, cvtColsStrToSet
 import unittest
 
 
 class SubFunctionsTestCase(unittest.TestCase):
-    def test_valid_file(self):
-        self.assertTrue(valid_file(['tblutil.py']))
+    def test_tblutil_isValidFile(self):
+        self.assertTrue(isValidFile('tblutil.py'))
 
-    def test_fail_valid_file(self):
-        self.assertFalse(valid_file(['tblutel.py']))
+    def test_fail_tblutil_isValidFile(self):
+        self.assertFalse(isValidFile('tblutel.py'))
 
-    def test_what_file_type_XLS(self):
-        self.assertIs(whatfiletype('Test.xls'), 'excel')
+    def test_tblutil_getFileType_XLS(self):
+        self.assertTrue(getFileType('Test.xls') is 'excel')
 
-    def test_what_file_type_XLSX(self):
-        self.assertIs(whatfiletype('Test.xlsx'), 'excel')
+    def test_tblutil_getFileType_XLSX(self):
+        self.assertTrue(getFileType('Test.xlsx')=='excel')
 
-    def test_what_file_type_CSV(self):
-        self.assertIs(whatfiletype('Test.csv'), 'csv')
+    def test_tblutil_getFileType_CSV(self):
+        self.assertTrue(getFileType('Test.csv')=='csv')
 
-    def test_what_file_type_other(self):
-        self.assertFalse(whatfiletype('Test.csv'))
+    def test_tblutil_getFileType_other(self):
+        with self.assertRaises(InvalidFileType):
+            getFileType('Test.txt')
 
-    def test_tocsv_invalid_file_type(self):
-        with self.assertRaises(SystemExit):
-            tocsv('Test.csv')
+    def test_tblutil_cvtColsStrToSet_err(self):
+        with self.assertRaises(InvalidExcelColumn):
+            cvtColsStrToSet('A1')
 
-    def test_extractcols_invalid_file_type(self):
-        with self.assertRaises(SystemExit):
-            extractcols('Test.xls')
+    def test_tblutil_cvtColsStrToSet_num(self):
+        result= cvtColsStrToSet('1,3,7')
+        self.assertTrue(result-{1,2,3})
+
+    def test_tblutil_cvtColsStrToSet_alpha(self):
+        result=cvtColsStrToSet('A,C,G')
+        self.assertTrue(result-{1,2,3})
