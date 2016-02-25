@@ -282,21 +282,30 @@ def create_parser():
     )
 
     parser.add_argument(
-        '-cols',
+        "-c",
+        "--cols",
         type=str,
         help='Optional value to specify which columns to use'
     )
 
     parser.add_argument(
-        '-sheet',
+        "-s",
+        "--sheet",
         type=int,
         help='Optional value to specify which columns to use'
     )
 
     parser.add_argument(
+        "-w",
+        "--with",
+        type=str,
+        help='Optional value to specify the second file to use with join'
+    )
+
+    parser.add_argument(
         'action',
         type=str,
-        choices=['tocsv', 'extract'],
+        choices=['tocsv', 'extract', 'join'],
         help='Action to perform on the table'
     )
 
@@ -316,6 +325,10 @@ def main():
         tocsv(args.file, args.sheet)
     elif args.action is 'extract':
         extractcols(args.file, args.cols)
+    elif args.action is 'join:':
+        pass
+    else:
+        pass
 
     print('Complete')
 
