@@ -2,6 +2,7 @@
 """Module: Command line utility to perform manipulation of table type data files"""
 
 import argparse
+import warnings
 import openpyxl
 import csv
 import re
@@ -130,10 +131,9 @@ def tocsv(fname, sheetnum=-1, cols=set()):
     # load the target workbook
     print('Convert an Excel worksheet to CSV')
     try:
+        warnings.simplefilter("ignore")
         wb = openpyxl.load_workbook(fname, data_only=True)
         sheetnms = wb.get_sheet_names()
-    except UserWarning:
-        pass
     except Exception as err:
         print('ERR: '+fname+' '+str(err))
         return
@@ -161,7 +161,7 @@ def tocsv(fname, sheetnum=-1, cols=set()):
     table = extractxltable(xlsheet, cols)
 
     # Set the output filename based on sheet name
-    ofname = sheetnms[sheetnum]+'.csv'
+    ofname = os.path.splitext(os.path.basename(fname))[0] + '-' + sheetnms[sheetnum]+'.csv'
 
     # Open output file
     ofile = open(ofname, mode='w', newline='')
@@ -275,6 +275,21 @@ def extractcols(fname, cols, sheetnum=-1):
     # Completed all activities, function returns True to mark success
     return True
 
+def cvtstrindextoset(strindex):
+    if strindex is None or strindex == '':
+        return {0,0}
+    else:
+        strindex = strindex.rstrip()
+
+    if len(strindex.split(',')) == 1:
+        return {cvtcolsstrtoset(strindex), cvtcolsstrtoset(strindex)}
+    else:
+        indexes = strindex.rstrip().split(',')[:2]
+        return cvtcolsstrtoset(indexes)
+
+
+def joinfiles(file1, file2, index):
+    pass
 
 def create_parser():
     parser = argparse.ArgumentParser(
@@ -296,10 +311,17 @@ def create_parser():
     )
 
     parser.add_argument(
-        "-w",
-        "--with",
+        "-t",
+        "--to",
         type=str,
         help='Optional value to specify the second file to use with join'
+    )
+
+    parser.add_argument(
+        "-i",
+        "--index",
+        type=str,
+        help='Optional value to specify the columns to use as index between two files for join'
     )
 
     parser.add_argument(
@@ -326,7 +348,7 @@ def main():
     elif args.action is 'extract':
         extractcols(args.file, args.cols)
     elif args.action is 'join:':
-        pass
+        joinfiles(args.file, args.to, cvtstrindextoset(args.index))
     else:
         pass
 
