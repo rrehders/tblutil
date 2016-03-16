@@ -2,7 +2,6 @@ from tblutil import InvalidFileType, InvalidExcelColumn
 from tblutil import getfiletype, cvtcolsstrtoset, extractxltable, extractlisttable
 from tblutil import cvtstrindextoset, tocsv, extractcols, joinfiles
 import unittest
-import openpyxl
 import os
 
 
@@ -10,8 +9,12 @@ class MainTestCases(unittest.TestCase):
     def test_tblutil_tocsv_fail(self):
         self.assertFalse(tocsv('/users/rrehders/test/test.xls', 0))
 
-    def test_tblutil_tocsv_success_minimum_parameter(self):
-        self.assertTrue(tocsv('/users/rrehders/test/test.xlsx', 0))
+    def test_tblutil_tocsv_success_minimum_parameters(self):
+        self.assertTrue(tocsv('/users/rrehders/test/test.xlsx'))
+        os.system('rm ./*.csv')
+
+    def test_tblutil_tocsv_success_one_sheet(self):
+        self.assertTrue(tocsv('/users/rrehders/test/test.xlsx',0))
         os.system('rm ./*.csv')
 
     def test_tblutil_tocsv_success_parameters(self):
@@ -35,4 +38,4 @@ class MainTestCases(unittest.TestCase):
 
     def test_tblutils_extractcols_success_xlsx(self):
         self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', cvtcolsstrtoset('A,B'), 0))
-        os.system('rm ./*.csv')
+        os.system('rm ./*.xlsx')

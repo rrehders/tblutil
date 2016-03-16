@@ -68,3 +68,6 @@ class SubFunctionTestCases(unittest.TestCase):
         table = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         result = extractlisttable(table, {1, 2, 3})
         self.assertTrue(len(result[0]) == 3)
+
+    def test_tblutil_outcsvtable_(selfself):
+        table = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
