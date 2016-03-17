@@ -33,11 +33,11 @@ def getfiletype(fname):
         raise InvalidFileType(fname)
 
 
-def cvtcolsstrtoset(strcols):
+def cvtcolsstr(strcols):
     """
     Convert a string of numeric or letter columns to a set of numeric columns
     :param strcols: Original String to convert
-    :return: set of integers corresponding to spreadsheet columns
+    :return: A set of integers corresponding to spreadsheet columns or a single integer
     """
     cols = set()
     params = strcols.split(',')
@@ -48,7 +48,10 @@ def cvtcolsstrtoset(strcols):
             cols.add(openpyxl.utils.column_index_from_string(param))
         else:
             raise InvalidExcelColumn(param)
-    return cols
+    if len(cols) == 1:
+        return list(cols)[0]
+    else:
+        return cols
 
 
 def extractxltable(xlsheet, cols=set()):
@@ -290,17 +293,21 @@ def extractcols(fname, cols, sheetnum=-1):
     return True
 
 
-def cvtstrindextoset(strindex):
+def cvtjoinstrindex(strindex):
+    """
+    :param strindex: String containing column indecies
+    :return: Tuple of 2 column indecies
+    """
     if strindex is None or strindex == '':
-        return {0,0}
+        return (0,0)
     else:
         strindex = strindex.rstrip()
 
     if len(strindex.split(',')) == 1:
-        return set(cvtcolsstrtoset(strindex), cvtcolsstrtoset(strindex))
+        return(cvtcolsstr(strindex), cvtcolsstr(strindex))
     else:
-        indexes = strindex.rstrip().split(',')[:2]
-        return cvtcolsstrtoset(indexes)
+        indexes = strindex.rstrip()
+        return (idx for idx in cvtcolsstr(indexes))
 
 
 def joinfiles(file1, file2, index):
@@ -363,7 +370,7 @@ def main():
     elif args.action is 'extract':
         extractcols(args.file, args.cols)
     elif args.action is 'join:':
-        joinfiles(args.file, args.to, cvtstrindextoset(args.index))
+        joinfiles(args.file, args.to, cvtjoinstrindex(args.index))
     else:
         pass
 

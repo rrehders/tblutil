@@ -1,6 +1,6 @@
 from tblutil import InvalidFileType, InvalidExcelColumn
-from tblutil import getfiletype, cvtcolsstrtoset, extractxltable, extractlisttable
-from tblutil import cvtstrindextoset, tocsv, extractcols, joinfiles
+from tblutil import getfiletype, cvtcolsstr, extractxltable, extractlisttable
+from tblutil import cvtjoinstrindex, tocsv, extractcols, joinfiles
 import unittest
 import os
 
@@ -18,12 +18,12 @@ class MainTestCases(unittest.TestCase):
         os.system('rm ./*.csv')
 
     def test_tblutil_tocsv_success_parameters(self):
-        self.assertTrue(tocsv('/users/rrehders/test/test.xlsx', 0, cvtcolsstrtoset('A,B')))
+        self.assertTrue(tocsv('/users/rrehders/test/test.xlsx', 0, cvtcolsstr('A,B')))
         os.system('rm ./*.csv')
 
     def test_tblutils_extractcols_fail_bad_file(self):
         with self.assertRaises(InvalidFileType):
-            extractcols('/users/rrehders/test/fail.txt', cvtcolsstrtoset('A'))
+            extractcols('/users/rrehders/test/fail.txt', {cvtcolsstr('A')})
 
     def test_tblutils_extractcols_fail_no_cols(self):
         with self.assertRaises(TypeError):
@@ -33,9 +33,9 @@ class MainTestCases(unittest.TestCase):
         self.assertFalse(extractcols('/users/rrehders/test/test.csv', set()))
 
     def test_tblutils_extractcols_success_csv(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.csv', cvtcolsstrtoset('A,B')))
+        self.assertTrue(extractcols('/users/rrehders/test/test.csv', cvtcolsstr('A,B')))
         os.system('rm ./*.csv')
 
     def test_tblutils_extractcols_success_xlsx(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', cvtcolsstrtoset('A,B'), 0))
+        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', cvtcolsstr('A,B'), 0))
         os.system('rm ./*.xlsx')
