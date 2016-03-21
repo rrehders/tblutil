@@ -1,4 +1,4 @@
-from tblutil import create_parser
+from cmnfns import create_parser
 import unittest
 
 
@@ -32,83 +32,83 @@ class CommandLineTestCases(unittest.TestCase):
 
     def test_invalid_action_but_minimum_paramenters(self):
         with self.assertRaises(SystemExit):
-            self.parser.parse_args(['jhkjl', 'tblutil.py'])
+            self.parser.parse_args(['jhkjl', 'cmnfns.py'])
 
     def test_two_valid_parameters_tocsv(self):
         # Use the name of the script to guarentee file is present
-        args = self.parser.parse_args(['tocsv', 'tblutil.py'])
+        args = self.parser.parse_args(['tocsv', 'cmnfns.py'])
         self.assertTrue(args.action == 'tocsv')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.sheet is None)
         self.assertTrue(args.cols is None)
 
     def test_valid_tocsv_w_optional_sheet(self):
         # Use the name of the script to guarentee file is present
-        args = self.parser.parse_args(['tocsv', 'tblutil.py', '--sheet=1'])
+        args = self.parser.parse_args(['tocsv', 'cmnfns.py', '--sheet=1'])
         self.assertTrue(args.action == 'tocsv')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.sheet == 1)
         self.assertTrue(args.cols is None)
 
     def test_valid_tocsv_optional_columns_specified_num(self):
-        args = self.parser.parse_args(['tocsv', 'tblutil.py', '--cols=1,2'])
+        args = self.parser.parse_args(['tocsv', 'cmnfns.py', '--cols=1,2'])
         self.assertTrue(args.action == 'tocsv')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.sheet is None)
         self.assertTrue(args.cols == '1,2')
 
     def test_valid_tocsv_sheet_optional_columns_specified_num(self):
-        args = self.parser.parse_args(['tocsv', 'tblutil.py', '--sheet=0', '--cols=1,2'])
+        args = self.parser.parse_args(['tocsv', 'cmnfns.py', '--sheet=0', '--cols=1,2'])
         self.assertTrue(args.action == 'tocsv')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.sheet == 0)
         self.assertTrue(args.cols == '1,2')
 
     def test_valid_tocsv_sheet_optional_columns_specified_alpha(self):
-        args = self.parser.parse_args(['tocsv', 'tblutil.py', '--sheet=0', '--cols=A,B'])
+        args = self.parser.parse_args(['tocsv', 'cmnfns.py', '--sheet=0', '--cols=A,B'])
         self.assertTrue(args.action == 'tocsv')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.sheet == 0)
         self.assertTrue(args.cols == 'A,B')
 
     def test_valid_join(self):
-        args = self.parser.parse_args(['join', 'tblutil.py'])
+        args = self.parser.parse_args(['join', 'cmnfns.py'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
         self.assertTrue(args.to is None)
         self.assertTrue(args.index is None)
 
     def test_valid_join_with_specified(self):
-        args = self.parser.parse_args(['join', 'tblutil.py', '--to=tblutil.py'])
+        args = self.parser.parse_args(['join', 'cmnfns.py', '--to=cmnfns.py'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
-        self.assertTrue(args.to == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
+        self.assertTrue(args.to == 'cmnfns.py')
         self.assertTrue(args.index is None)
 
     def test_valid_join_with_and_numeric_index(self):
-        args = self.parser.parse_args(['join', 'tblutil.py', '--to=tblutil.py', '--index=1'])
+        args = self.parser.parse_args(['join', 'cmnfns.py', '--to=cmnfns.py', '--index=1'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
-        self.assertTrue(args.to == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
+        self.assertTrue(args.to == 'cmnfns.py')
         self.assertTrue(args.index == '1')
 
     def test_valid_join_with_alpa_index(self):
-        args = self.parser.parse_args(['join', 'tblutil.py', '--to=tblutil.py', '--index=A'])
+        args = self.parser.parse_args(['join', 'cmnfns.py', '--to=cmnfns.py', '--index=A'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
-        self.assertTrue(args.to == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
+        self.assertTrue(args.to == 'cmnfns.py')
         self.assertTrue(args.index == 'A')
 
     def test_valid_join_with_2_numeric_index(self):
-        args = self.parser.parse_args(['join', 'tblutil.py', '--to=tblutil.py', '--index=3,2'])
+        args = self.parser.parse_args(['join', 'cmnfns.py', '--to=cmnfns.py', '--index=3,2'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
-        self.assertTrue(args.to == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
+        self.assertTrue(args.to == 'cmnfns.py')
         self.assertTrue(args.index == '3,2')
 
     def test_valid_join_with_2_alpha_index(self):
-        args = self.parser.parse_args(['join', 'tblutil.py', '--to=tblutil.py', '--index=C,B'])
+        args = self.parser.parse_args(['join', 'cmnfns.py', '--to=cmnfns.py', '--index=C,B'])
         self.assertTrue(args.action == 'join')
-        self.assertTrue(args.file == 'tblutil.py')
-        self.assertTrue(args.to == 'tblutil.py')
+        self.assertTrue(args.file == 'cmnfns.py')
+        self.assertTrue(args.to == 'cmnfns.py')
         self.assertTrue(args.index == 'C,B')

@@ -1,6 +1,6 @@
 test_tblutil_main.pyfrom tblutil import InvalidFileType, InvalidExcelColumn
-from tblutil import getfiletype, cvtcolsstr, extractxltable, extractlisttable
-from tblutil import cvtjoinstrindex, tocsv, extractcols, joinfiles
+from cmnfns import getfiletype, cvtcolsstr, extractxltable, extractlisttable
+from cmnfns import cvtjoinstrtoindex, tocsv, extractcols, joinfiles
 import unittest
 import os
 

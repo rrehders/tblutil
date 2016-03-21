@@ -1,13 +1,13 @@
-from tblutil import InvalidFileType, InvalidExcelColumn
-from tblutil import getfiletype, cvtcolsstr, extractxltable, extractlisttable
-from tblutil import cvtjoinstrindex, outcsvtable
+from cmnfns import InvalidFileType, InvalidExcelColumn, getfiletype, cvtcolsstrtoset
+from cmnfns import extractxltable, extractlisttable
+from cmnfns import cvtjoinstrtoindex, outcsvtable
 import unittest
 import openpyxl
 import csv
 import os
 
 
-class SubFunctionTestCases(unittest.TestCase):
+class FunctionTestCases(unittest.TestCase):
     def test_tblutil_getFileType_XLSX(self):
         self.assertTrue(getfiletype('Test.xlsx') == 'excel')
 
@@ -20,38 +20,38 @@ class SubFunctionTestCases(unittest.TestCase):
 
     def test_tblutil_cvtcolsstrtoset_err(self):
         with self.assertRaises(InvalidExcelColumn):
-            cvtcolsstr('A1')
+            cvtcolsstrtoset('A1')
 
     def test_tblutil_cvtcolsstrtoset_single_num(self):
-        result = cvtcolsstr('1')
-        self.assertTrue(result==1)
+        result = cvtcolsstrtoset('1')
+        self.assertFalse(result - {1})
 
     def test_tblutil_cvtcolsstrtoset_single_alpha(self):
-        result = cvtcolsstr('A')
-        self.assertTrue(result==1)
+        result = cvtcolsstrtoset('A')
+        self.assertFalse(result-{1})
 
     def test_tblutil_cvtcolsstrtoset_multiple_num(self):
-        result = cvtcolsstr('1,3,7')
+        result = cvtcolsstrtoset('1,3,7')
         self.assertFalse(result-{1, 3, 7})
 
     def test_tblutil_cvtcolsstrtoset_multiple_alpha(self):
-        result = cvtcolsstr('A,C,G')
+        result = cvtcolsstrtoset('A,C,G')
         self.assertFalse(result-{1, 3, 7})
         
     def test_tblutil_cvtstrindextoset_single_num(self):
-        result = cvtjoinstrindex('1')
+        result = cvtjoinstrtoindex('1')
         self.assertTrue(result==(1,1))
 
     def test_tblutil_cvtstrindextoset_single_alpha(self):
-        result = cvtjoinstrindex('A')
+        result = cvtjoinstrtoindex('A')
         self.assertTrue(result==(1,1))
 
     def test_tblutil_cvtstrindextoset_double_num(self):
-        result = cvtjoinstrindex('2,3')
+        result = cvtjoinstrtoindex('2,3')
         self.assertFalse(result==(2, 3))
 
     def test_tblutil_cvtstrindextoset_double_alpha(self):
-        result = cvtjoinstrindex('C,B')
+        result = cvtjoinstrtoindex('C,B')
         self.assertFalse(result==(2, 3))
 
     def test_tblutil_extractxltable_no_columns(self):
