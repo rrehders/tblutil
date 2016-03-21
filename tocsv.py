@@ -7,7 +7,6 @@ import warnings
 import openpyxl
 import cmnfns
 
-import cmnfns
 __author__ = 'rrehders'
 
 
