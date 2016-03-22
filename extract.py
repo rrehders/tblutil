@@ -71,16 +71,16 @@ def extractlisttable(csvsheet, cols=set()):
     return table
 
 
-def extractcols(fname, incols='', sheetnum=-1):
+def extractcols(fname, incols='', sheet='0'):
     """
     Create a new file of the same type as the input file but containing only the columns identified
     :param fname: String containing the input file path, name and extension
     :param incols: String containg the columns requested for extraction
-    :param sheetnum: specific sheet targetted within an excel file
+    :param sheet: specific sheet targetted within an excel file
     :return: True if successful, None if incomplete
     """
     # Convert columns argument from string to set
-    cols= cmnfns.cvtcolsstrtoset(incols)
+    cols = cmnfns.cvtcolsstrtoset(incols)
     # Validate that columns were requested
     if not len(cols):
         print('ERR: no columns specified for extraction')
@@ -99,20 +99,11 @@ def extractcols(fname, incols='', sheetnum=-1):
             print('ERR: '+fname+' '+str(err))
             return
 
-        # Seek user input if sheetnum is not file contains more than one sheet
+        # Validate sheet is valid for the file
+        sheetnum = int(sheet)
         if sheetnum not in range(len(sheetnms)):
-            sheetnum = -1
-            # Display Sheets in the workbook and ask which sheet to convert
-            print('Sheets in '+fname)
-            for i in range(len(sheetnms)):
-                print(' | '+str(i)+' - '+sheetnms[i], end='')
-            print(' |')
-
-            # Get sheet selection
-            while sheetnum not in range(len(sheetnms)):
-                val = input()
-                sheetnum = int(val)
-            print('')
+            print('ERR: invalid sheet specified for extraction')
+            return
 
         # Set the active sheet to the selection
         print('Sheet: '+sheetnms[sheetnum])
