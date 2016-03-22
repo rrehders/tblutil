@@ -4,6 +4,7 @@
 import cmnfns
 import argparse
 import openpyxl
+import warnings
 import csv
 import os
 
@@ -70,15 +71,17 @@ def extractlisttable(csvsheet, cols=set()):
     return table
 
 
-def extractcols(fname, cols, sheetnum=-1):
+def extractcols(fname, incols='', sheetnum=-1):
     """
     Create a new file of the same type as the input file but containing only the columns identified
     :param fname: String containing the input file path, name and extension
-    :param cols: String containg the columns requested for extraction
+    :param incols: String containg the columns requested for extraction
     :param sheetnum: specific sheet targetted within an excel file
     :return: True if successful, None if incomplete
     """
-    # Validate colums are requested
+    # Convert columns argument from string to set
+    cols= cmnfns.cvtcolsstrtoset(incols)
+    # Validate that columns were requested
     if not len(cols):
         print('ERR: no columns specified for extraction')
         return
@@ -87,6 +90,7 @@ def extractcols(fname, cols, sheetnum=-1):
         # load the target workbook
         print('Extract columns from an Excel worksheet')
         try:
+            warnings.simplefilter("ignore")
             wb = openpyxl.load_workbook(fname, data_only=True)
             sheetnms = wb.get_sheet_names()
         except UserWarning:
@@ -106,7 +110,8 @@ def extractcols(fname, cols, sheetnum=-1):
 
             # Get sheet selection
             while sheetnum not in range(len(sheetnms)):
-                sheetnum = int(input('Convert which sheet ? '))
+                val = input()
+                sheetnum = int(val)
             print('')
 
         # Set the active sheet to the selection

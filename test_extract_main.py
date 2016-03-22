@@ -1,44 +1,37 @@
-from cmnfns import InvalidFileType, InvalidExcelColumn, getfiletype, cvtcolsstrtoset
-from extract import extractxltable, extractlisttable, extractcols
+from cmnfns import InvalidFileType
+from extract import extractcols
 import unittest
 import os
 
 
-class MainTestCases(unittest.TestCase):
-    def test_tblutil_extractcols_fail(self):
-        self.assertFalse(extractcols('/users/rrehders/test/test.xls', 0))
-
-    def test_tblutil_extractcols_success_minimum_parameters_excel(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx'))
-        os.system('rm ./*.csv')
-
-    def test_tblutil_extractcols_success_minimum_parameters_csv(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.csv'))
-        os.system('rm ./*.csv')
-
-    def test_tblutil_extractcols_success_one_sheet(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', 0))
-        os.system('rm ./*.csv')
-
-    def test_tblutil_tocsv_success_parameters(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', 0, 'A,B'))
-        os.system('rm ./*.csv')
-
+class extractTestCases(unittest.TestCase):
     def test_extractcols_fail_bad_file(self):
         with self.assertRaises(InvalidFileType):
             extractcols('/users/rrehders/test/fail.txt', 'A')
 
-    def test_tblutils_extractcols_fail_no_cols(self):
-        with self.assertRaises(TypeError):
-            extractcols('/users/rrehders/test/test.csv')
+    def test_extractcols_fail_no_cols(self):
+        self.assertFalse(extractcols('/users/rrehders/test/test.csv', '', '0'))
 
-    def test_tblutils_extractcols_fail_empty_cols(self):
-        self.assertFalse(extractcols('/users/rrehders/test/test.csv', set()))
-
-    def test_tblutils_extractcols_success_csv(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.csv', cvtcolsstr('A,B')))
+    def test_extractcols_success_minimum_parameters_num_csv_first_sheet(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.csv', '1,2', '0'))
         os.system('rm ./*.csv')
 
-    def test_tblutils_extractcols_success_xlsx(self):
-        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', cvtcolsstr('A,B'), 0))
-        os.system('rm ./*.xlsx')
+    def test_extractcols_success_minimum_parameters_alpha_csv_first_sheet(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.csv', 'A,B', '0'))
+        os.system('rm ./*.csv')
+
+    def test_extractcols_success_minimum_parameters_num_csv_second_sheet(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.csv', '1,2', '1'))
+        os.system('rm ./*.csv')
+
+    def test_extractcols_success_minimum_parameters_alpha_csv_second_sheet(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.csv', 'A,B', '1'))
+        os.system('rm ./*.csv')
+
+    def test_extractcols_success_minimum_parameters_num_excel(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', '1,2'))
+        os.system('rm ./*.csv')
+
+    def test_extractcols_success_minimum_parameters_alpha_excel(self):
+        self.assertTrue(extractcols('/users/rrehders/test/test.xlsx', 'A,B'))
+        os.system('rm ./*.csv')
