@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 """Module: Command line utility to perform manipulation of table type data files"""
 
+import cmnfns
 import argparse
 import warnings
 import openpyxl
@@ -11,50 +12,7 @@ import os
 __author__ = 'rrehders'
 
 
-class InvalidFileType(Exception):
-    pass
-
-
-class InvalidExcelColumn(Exception):
-    pass
-
-
-def getfiletype(fname):
-    """
-    Returns a standardized file type based on the extension of the filename provided
-    :param fname: Sting containing the path and file
-    :return: String of standardized file types {'excel', 'csv'} or False if an invalid file type
-    """
-    if re.search('\.xlsx$', fname, re.IGNORECASE):
-        return 'excel'
-    elif re.search('\.csv$', fname, re.IGNORECASE):
-        return 'csv'
-    else:
-        raise InvalidFileType(fname)
-
-
-def cvtcolsstr(strcols):
-    """
-    Convert a string of numeric or letter columns to a set of numeric columns
-    :param strcols: Original String to convert
-    :return: A set of integers corresponding to spreadsheet columns or a single integer
-    """
-    cols = set()
-    params = strcols.split(',')
-    for param in params:
-        if param.isdecimal():
-            cols.add(int(param))
-        elif param.isalpha():
-            cols.add(openpyxl.utils.column_index_from_string(param))
-        else:
-            raise InvalidExcelColumn(param)
-    if len(cols) == 1:
-        return list(cols)[0]
-    else:
-        return cols
-
-
-def extractxltable(xlsheet, cols=set()):
+def prepxltable(xlsheet, cols=set()):
     if len(cols) == 0:
         # Build lists of values for each row
         print('Extracting all columns')
@@ -84,7 +42,7 @@ def extractxltable(xlsheet, cols=set()):
     return table
 
 
-def extractlisttable(csvsheet, cols=set()):
+def preplisttable(csvsheet, cols=set()):
     if len(cols) == 0:
         # Build lists of values for each row
         print('Extracting all columns')
@@ -150,9 +108,9 @@ def tocsv(fname, sheetnum=-1, cols=set()):
     """
     # validate file type
     try:
-        if getfiletype(fname) != 'excel':
-            raise InvalidFileType(fname)
-    except InvalidFileType:
+        if cmnfns.getfiletype(fname) != 'excel':
+            raise cmnfns.InvalidFileType(fname)
+    except cmnfns.InvalidFileType:
         print('ERR: '+fname+' is not a valid filetype to convert to csv')
         print('Valid filetypes are: .xls, .xlsx')
         return
@@ -192,7 +150,7 @@ def tocsv(fname, sheetnum=-1, cols=set()):
             xlsheet = wb.get_sheet_by_name(sheetnms[sheetnum])
 
             # extract cells from the input excel file and set of columns
-            table = extractxltable(xlsheet, cols)
+            table = cmnfns.extractxltable(xlsheet, cols)
 
             # output a csv file of table with the hybrid file-sheet name
             outcsvtable(table, fname, sheetnms[sheetidx])
@@ -201,13 +159,16 @@ def tocsv(fname, sheetnum=-1, cols=set()):
     return True
 
 
-def extractcols(fname, cols, sheetnum=-1):
+def join(fname1, fname2, index, sheetnum1=0, sheetnum2=0, cols1='', cols2=''):
     """
-    Create a new file of the same type as the input file but containing only the columns identified
-    :param fname: String containing the input file path, name and extension
-    :param cols: String containg the columns requested for extraction
-    :param sheetnum: specific sheet targetted within an excel file
-    :return: True if successful, None if incomplete
+    :param fname1: String file name of the first file
+    :param fname2: String file name of the second file
+    :param index: Tuple of integers representing the columns to use as key for joining the files
+    :param sheetnum1: Integer sheet number for the first file (if excel)
+    :param sheetnum2: Integer sheet number for the second file (if excel)
+    :param cols1: String representing the columns to use from file 1
+    :param cols2: String representing hte columns to use from file 2
+    :return:
     """
     # Validate colums are requested
     if not len(cols):
@@ -323,44 +284,49 @@ def create_parser():
     )
 
     parser.add_argument(
-        "-c",
-        "--cols",
+        "-s1",
+        "--sheet1",
         type=str,
-        help='Optional value to specify which columns to use'
+        help='Optional value to specify which sheet to use for the first excel file'
     )
 
     parser.add_argument(
-        "-s",
-        "--sheet",
-        type=int,
-        help='Optional value to specify which columns to use'
+        "-s2",
+        "--sheet2",
+        type=str,
+        help='Optional value to specify which sheet to use for the first excel file'
     )
 
     parser.add_argument(
-        "-t",
-        "--to",
+        "-c1",
+        "--cols1",
         type=str,
-        help='Optional value to specify the second file to use with join'
+        help='Optional string specifying which columns to use from th first file'
     )
 
     parser.add_argument(
-        "-i",
-        "--index",
+        "-c2",
+        "--cols2",
         type=str,
-        help='Optional value to specify the columns to use as index between two files for join'
+        help='Optional string specifying which columns to use from th first file'
     )
 
     parser.add_argument(
-        'action',
+        "index",
         type=str,
-        choices=['tocsv', 'extract', 'join'],
-        help='Action to perform on the table'
+        help='Specified columns to use as common key between the two files to join'
     )
 
     parser.add_argument(
-        'file',
+        'file1',
         type=str,
-        help='File containing the table'
+        help='File containing the first table'
+    )
+
+    parser.add_argument(
+        'file2',
+        type=str,
+        help='File containing the second table'
     )
 
     return parser
@@ -369,14 +335,7 @@ def create_parser():
 def main():
     parser = create_parser()
     args = parser.parse_args()
-    if args.action is 'tocsv':
-        tocsv(args.file, args.sheet)
-    elif args.action is 'extract':
-        extractcols(args.file, args.cols)
-    elif args.action is 'join:':
-        joinfiles(args.file, args.to, cvtjoinstrindex(args.index))
-    else:
-        pass
+    joinfiles(args.file1, args.file2, args.index, args.sheet1, args.sheet2, args.cols1, args.cols2)
 
     print('Complete')
 
