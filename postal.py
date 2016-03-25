@@ -86,17 +86,22 @@ def cleanpostal(fname, col='', sheet='0'):
         print('ERR: no column specified for extraction')
         return
 
-    if cmnfns.getfiletype(fname) is 'excel':
+    try:
+        ftype = cmnfns.getfiletype(fname)
+    except cmnfns.InvalidFileType as err:
+        print('ERR: ' + fname + str(err))
+        print('Valid filetypes are: .xls, .xlsx')
+        return
+
+    if ftype is 'excel':
         # load the target workbook
         print('Extract columns from an Excel worksheet')
         try:
             warnings.simplefilter("ignore")
             wb = openpyxl.load_workbook(fname, data_only=True)
             sheetnms = wb.get_sheet_names()
-        except UserWarning:
-            pass
         except Exception as err:
-            print('ERR: '+fname+' '+str(err))
+            print('ERR: ' + fname + ' ' + str(err))
             return
 
         # Validate sheet is valid for the file
@@ -131,7 +136,7 @@ def cleanpostal(fname, col='', sheet='0'):
         # Close output file
         ofile.close()
 
-    elif cmnfns.getfiletype(fname) is 'csv':
+    elif ftype is 'csv':
         print('Extract columns from an CSV File')
         with open(fname, 'r') as filein:
             csvin = csv.reader(filein)

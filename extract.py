@@ -93,10 +93,8 @@ def extractcols(fname, incols='', sheet='0'):
             warnings.simplefilter("ignore")
             wb = openpyxl.load_workbook(fname, data_only=True)
             sheetnms = wb.get_sheet_names()
-        except UserWarning:
-            pass
         except Exception as err:
-            print('ERR: '+fname+' '+str(err))
+            print('ERR: ' + fname + ' ' + str(err))
             return
 
         # Validate sheet is valid for the file
