@@ -1,6 +1,7 @@
 from cmnfns import InvalidFileType, InvalidExcelColumn, getfiletype, cvtcolsstrtoset
 from cmnfns import extractxltable, extractlisttable
 from cmnfns import cvtjoinstrtoindex, outcsvtable
+from cmnfns import cleancdnpostallist
 import unittest
 import openpyxl
 import csv
@@ -90,3 +91,9 @@ class FunctionTestCases(unittest.TestCase):
             data = [[int(item) for item in row] for row in csvin]
         self.assertTrue(table == data)
         os.system('rm ./*.csv')
+
+    def test_cleancdnpostallist_various_format_cases(self):
+        table = ['M6S 1J4', ' M6S 1J4', 'M6S 1J4 ', ' M6S 1J4 ', 'M6S1J4']
+        result = cleancdnpostallist(table)
+        for pcode in table:
+            self.assertTrue(len(pcode) == 7)

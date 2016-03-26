@@ -115,7 +115,10 @@ def cleanpostal(fname, col='', sheet='0'):
         xlsheet = wb.get_sheet_by_name(sheetnms[sheetnum])
 
         # extract cells from the input excel file and set of columns
-        table = extractxltable(xlsheet, idx)
+        table = [item for sublist in extractxltable(xlsheet, idx) for item in sublist]
+
+        # Clean the postal codes
+        postallist = cmnfns.cleancdnpostallist(table)
 
         # Set the output filename based on sheet name
         ofname = sheetnms[sheetnum]+'.csv'

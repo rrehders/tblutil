@@ -52,6 +52,12 @@ def cvtcolsstrtoset(strcols):
 
 
 def extractxltable(xlsheet, cols=set()):
+    """
+    Create a list of lists containing the values of the cells in a spreadsheet
+    :param xlsheet: an openpyxl worksheet object of input data
+    :param cols: a set corresponding to column indexes to be extracted
+    :return: a list of lists
+    """
     if len(cols) == 0:
         # Build lists of values for each row
         print('Extracting all columns')
@@ -82,6 +88,12 @@ def extractxltable(xlsheet, cols=set()):
 
 
 def extractlisttable(csvsheet, cols=set()):
+    """
+    Create a list of lists containing the values of the cells in a spreadsheet
+    :param csvsheet: a list os lists containing the input data
+    :param cols: a set corresponding to column indexes to be extracted
+    :return: a list of lists
+    """
     if len(cols) == 0:
         # Build lists of values for each row
         print('Extracting all columns')
@@ -152,6 +164,28 @@ def cvtjoinstrtoindex(strindex):
     else:
         indexes = strindex.rstrip()
         return (idx for idx in cvtcolsstrtoset(indexes))
+
+
+def cleancdnpostallist(pcodes):
+    """
+    Returns a list after having scubbed the input list to canadian postal code format.
+    If the error rate for postal code prmatting is > 80% returns None
+    :param pcodes a list of strings corresponding to postal cods
+    """
+    # Set up a Canadian postal code regex
+    postalregex = re.compile(r'''(?!.*[DFIOQU])      # Eliminate invalid starting letters
+        ([A-VXY]             # Valid starting letters
+        \d                  # Number
+        [A-Z])              # Letter
+        .?                  # Optional seperator
+        (\d                 # Number
+        [A-Z]               # Letter
+        \d                  # Number
+        )
+        ''', re.IGNORECASE | re.VERBOSE)
+
+    # Vewy Pythonic
+    return [postalregex.sub(r'\1 \2', postal) for postal in pcodes]
 
 
 def main():
