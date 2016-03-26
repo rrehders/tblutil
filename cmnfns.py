@@ -185,7 +185,7 @@ def cleancdnpostallist(pcodes):
         ''', re.IGNORECASE | re.VERBOSE)
 
     # Vewy Pythonic
-    return [postalregex.sub(r'\1 \2', postal) for postal in pcodes]
+    return [postalregex.sub(r'\1 \2', postal.strip()) for postal in pcodes]
 
 
 def main():

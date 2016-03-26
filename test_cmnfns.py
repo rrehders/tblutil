@@ -95,5 +95,5 @@ class FunctionTestCases(unittest.TestCase):
     def test_cleancdnpostallist_various_format_cases(self):
         table = ['M6S 1J4', ' M6S 1J4', 'M6S 1J4 ', ' M6S 1J4 ', 'M6S1J4']
         result = cleancdnpostallist(table)
-        for pcode in table:
+        for pcode in result:
             self.assertTrue(len(pcode) == 7)
