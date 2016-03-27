@@ -10,7 +10,7 @@ class MainTestCases(unittest.TestCase):
 
     def test_cleanpostal_success_minimum_parameters(self):
         self.assertTrue(cleanpostal('/users/rrehders/test/addrtest.xlsx', 'V'))
-        os.system('rm ./*.csv')
+        # os.system('rm ./*.csv')
 
 """
     def test_tblutil_cleanpostal_success_xlsx_sheet_specified(self):

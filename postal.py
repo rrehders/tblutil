@@ -80,12 +80,11 @@ def cleanpostal(fname, col='', sheet='0'):
     :return: True if successful, None if incomplete
     """
     # Convert columns argument from string to set
-    idx = cmnfns.cvtcolsstrtoset(col)
+    idx = cmnfns.cvtcolsstrtoset(col).pop()
     # Validate that columns were requested
-    if not len(idx):
+    if not idx:
         print('ERR: no column specified for extraction')
         return
-
     try:
         ftype = cmnfns.getfiletype(fname)
     except cmnfns.InvalidFileType as err:
@@ -95,7 +94,7 @@ def cleanpostal(fname, col='', sheet='0'):
 
     if ftype is 'excel':
         # load the target workbook
-        print('Extract columns from an Excel worksheet')
+        print('Extract contents from Excel worksheet')
         try:
             warnings.simplefilter("ignore")
             wb = openpyxl.load_workbook(fname, data_only=True)
@@ -114,11 +113,19 @@ def cleanpostal(fname, col='', sheet='0'):
         print('Sheet: '+sheetnms[sheetnum])
         xlsheet = wb.get_sheet_by_name(sheetnms[sheetnum])
 
-        # extract cells from the input excel file and set of columns
-        table = [item for sublist in extractxltable(xlsheet, idx) for item in sublist]
+        # extract all cells from the input excel file as a list
+        table = extractxltable(xlsheet)
+
+# TODO: Finish debugging error in the constructor
+        # extract cells from the input excel file identified as the column of postal codess
+        column = [item for sublist in extractxltable(xlsheet, set(idx)) for item in sublist]
 
         # Clean the postal codes
-        postallist = cmnfns.cleancdnpostallist(table)
+        postallist = cmnfns.cleancdnpostallist(column)
+
+        # replace the existing postal items with the cleaned items
+        for r in range(len(table)):
+            table[r][idx]=postallist[r]
 
         # Set the output filename based on sheet name
         ofname = sheetnms[sheetnum]+'.csv'
