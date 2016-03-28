@@ -11,66 +11,6 @@ import os
 __author__ = 'rrehders'
 
 
-def extractxltable(xlsheet, cols=set()):
-    if len(cols) == 0:
-        # Build lists of values for each row
-        print('Extracting all columns')
-        table = []
-        for rowOfCellObjs in xlsheet:
-            row = []
-            for cellObj in rowOfCellObjs:
-                row += [cellObj.value]
-                print('.', end='')
-            table += [row]
-            print('')
-    else:
-        # Discard columns which are invalid
-        cols = cols.intersection(range(xlsheet.max_column+1))
-        print('Extracting columns: ' + str(cols))
-        table = []
-        for rowOfCellObjs in xlsheet:
-            row = []
-            col = 1
-            for cellObj in rowOfCellObjs:
-                if col in cols:
-                    row += [cellObj.value]
-                col += 1
-                print('.', end='')
-            table += [row]
-            print('')
-    return table
-
-
-def extractlisttable(csvsheet, cols=set()):
-    if len(cols) == 0:
-        # Build lists of values for each row
-        print('Extracting all columns')
-        table = []
-        for rowOfCells in csvsheet:
-            row = []
-            for cellObj in rowOfCells:
-                row += [cellObj]
-                print('.', end='')
-            table += [row]
-            print('')
-    else:
-        # Discard columns which are invalid
-        cols = cols.intersection(range(len(csvsheet)+1))
-        print('Extracting columns: ' + str(cols))
-        table = []
-        for rowOfCells in csvsheet:
-            row = []
-            col = 1
-            for cellObj in rowOfCells:
-                if col in cols:
-                    row += [cellObj]
-                col += 1
-                print('.', end='')
-            table += [row]
-            print('')
-    return table
-
-
 def cleanpostal(fname, col='', sheet='0'):
     """
     Output a CSV file of the corect postal codes from the input file
@@ -114,18 +54,17 @@ def cleanpostal(fname, col='', sheet='0'):
         xlsheet = wb.get_sheet_by_name(sheetnms[sheetnum])
 
         # extract all cells from the input excel file as a list
-        table = extractxltable(xlsheet)
+        table = cmnfns.extractxltable(xlsheet)
 
-# TODO: Finish debugging error in the constructor
-        # extract cells from the input excel file identified as the column of postal codess
-        column = [item for sublist in extractxltable(xlsheet, set(idx)) for item in sublist]
+        # extract cells from the input excel file identified as the column of postal codes
+        column = [item for sublist in cmnfns.extractxltable(xlsheet, {idx}) for item in sublist]
 
         # Clean the postal codes
         postallist = cmnfns.cleancdnpostallist(column)
 
         # replace the existing postal items with the cleaned items
         for r in range(len(table)):
-            table[r][idx]=postallist[r]
+            table[r][idx-1] = postallist[r]
 
         # Set the output filename based on sheet name
         ofname = sheetnms[sheetnum]+'.csv'
@@ -152,7 +91,18 @@ def cleanpostal(fname, col='', sheet='0'):
             csvin = csv.reader(filein)
             data = [row for row in csvin]
 
-        table = extractlisttable(data, idx)
+        table = cmnfns.extractlisttable(data)
+
+        # extract cells from the input excel file identified as the column of postal codes
+        column = [item for sublist in cmnfns.extractlisttable(data, {idx}) for item in sublist]
+
+        # Clean the postal codes
+        postallist = cmnfns.cleancdnpostallist(column)
+
+        # replace the existing postal items with the cleaned items
+        for r in range(len(table)):
+            table[r][idx - 1] = postallist[r]
+
         # Set the output filename based on sheet name
         ofname = os.path.basename(fname)+'_extract.csv'
 
